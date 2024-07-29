@@ -1,0 +1,17 @@
+server:
+  port: 8005
+  servlet:
+    context-path: /api
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 192.168.31.111
+    non-secure-port: ${server.port}
+    instance-id: ${eureka.instance.ip-address}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8003/eureka
+    fetch-registry: false
+spring:
+  application:
+    name: spring-cloud-docker-api

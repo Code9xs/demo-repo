@@ -1,0 +1,49 @@
+server:
+  port: 8006
+  servlet:
+    context-path: /gateway
+eureka:
+  instance:
+    prefer-ip-address: true
+    ip-address: 192.168.31.111
+    non-secure-port: ${server.port}
+    instance-id: ${eureka.instance.ip-address}:${server.port}
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8003/eureka
+logging:
+  level:
+    com.code9xs.filter.LoggingFilter: INFO
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    loggers:
+      enabled: true
+
+spring:
+  application:
+    name: spring-cloud-docker-gateway
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true # 开启当前服务注册与发现功能
+          lower-case-service-id: true # 将服务名都转换为消息，eureka中默认都是大写
+
+      routes:
+        - id: spring-cloud-docker-data
+          uri: lb://spring-cloud-docker-data  # spring-cloud-docker-data 是注册进eureka中的服务名，即Application的值
+          predicates:
+            - Path=/gateway/data/** # path 按照路径进行匹配，只要以/order-service/开头就符合规则
+          filters:
+            - StripPrefix=1 # 过滤器，去除请求的前缀路径，StripPrefix=1 表示去除请求路径的第一个路径片段
+        - id: spring-cloud-docker-api
+          uri: lb://spring-cloud-docker-api
+          predicates:
+            - Path=/gateway/api/**
+          filters:
+            - StripPrefix=1
+
